@@ -1,6 +1,9 @@
 import random
-import curses
+import keyboard
 import os
+
+selected_index = 0
+menu_size = 3
 def guess():
     print("Enter your username!")
     name = input()
@@ -83,22 +86,33 @@ def print_highscore():
     print("------------------------------")
 
 def show_main_menu():
-    selected_index = 0
     print_main_menu(selected_index)
-    arrow_key = curses.initscr().getch()
 
-    if arrow_key == curses.KEY_UP:
-        selected_index = selected_index + 1
-        print_main_menu(selected_index)
-    elif arrow_key == curses.KEY_DOWN:
-        selected_index = selected_index - 1
-        print_main_menu(selected_index)
+    keyboard.add_hotkey('up', lambda: key_up())
+    keyboard.add_hotkey('down', lambda: key_down())
+
+    keyboard.wait()
+
 def print_main_menu(index):
     print("     Guessing Game!      ")
     print("-------------------------")
     print("   >   " if index == 0 else "       ", "Highscore      ")
     print("   >   " if index == 1 else "       ", "Play Game      ")
     print("   >   " if index == 2 else "       ", "Exit      ")
+
+def key_up():
+    global selected_index
+    global menu_size
+    selected_index = (selected_index + 1) % menu_size
+    clear()
+    print_main_menu(selected_index)
+
+def key_down():
+    global selected_index
+    global menu_size
+    selected_index = (selected_index - 1) % menu_size
+    clear()
+    print_main_menu(selected_index)
 
 if __name__ == '__main__':
     show_main_menu()
