@@ -85,7 +85,14 @@ def print_highscore():
 def show_main_menu():
     selected_index = 0
     print_main_menu(selected_index)
+    arrow_key = curses.initscr().getch()
 
+    if arrow_key == curses.KEY_UP:
+        selected_index = selected_index + 1
+        print_main_menu(selected_index)
+    elif arrow_key == curses.KEY_DOWN:
+        selected_index = selected_index - 1
+        print_main_menu(selected_index)
 def print_main_menu(index):
     print("     Guessing Game!      ")
     print("-------------------------")
