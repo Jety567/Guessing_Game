@@ -1,9 +1,39 @@
 import random
 import keyboard
 import os
+import sys
+
+if os.name == 'nt':
+    import msvcrt
+    import ctypes
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int),
+                    ("visible", ctypes.c_byte)]
+
 
 selected_index = 0
 menu_size = 3
+def hide_cursor():
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = False
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == 'posix':
+        sys.stdout.write("\033[?25l")
+        sys.stdout.flush()
+def show_cursor():
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = True
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == 'posix':
+        sys.stdout.write("\033[?25h")
+        sys.stdout.flush()
 def guess():
     print("Enter your username!")
     name = input()
@@ -114,7 +144,18 @@ def key_down():
     clear()
     print_main_menu(selected_index)
 
+def init_guessing_game():
+    clear()
+    hide_cursor()
+
 if __name__ == '__main__':
-    show_main_menu()
+    try:
+        init_guessing_game()
+        show_main_menu()
+    except KeyboardInterrupt:
+        show_cursor()
+
+
+
 
 
