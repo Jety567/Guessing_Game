@@ -1,9 +1,6 @@
 import random
-import sys
-import time
-
-stream = sys.stdout
-
+import curses
+import os
 def guess():
     print("Enter your username!")
     name = input()
@@ -53,6 +50,13 @@ def guess():
                 continue
         score = score - 1
 
+def clear():
+    if (os.name == 'posix'):
+        os.system('clear')
+    # else screen will be cleared for windows
+    else:
+        os.system('cls')
+
 def write_score(score,name):
     f = open("score.txt", "a")
     f.write(name)
@@ -78,16 +82,18 @@ def print_highscore():
         print("   ",x[0], " | ",x[1])
     print("------------------------------")
 
-def print_main_menu():
-    stream.flush()
+def show_main_menu():
+    selected_index = 0
+    print_main_menu(selected_index)
+
+def print_main_menu(index):
     print("     Guessing Game!      ")
     print("-------------------------")
-    print(" 1.       Highscore      ")
-    print(" 2.       Play Game      ")
-    print(" 3.       Exit           ")
+    print("   >   " if index == 0 else "       ", "Highscore      ")
+    print("   >   " if index == 1 else "       ", "Play Game      ")
+    print("   >   " if index == 2 else "       ", "Exit      ")
 
 if __name__ == '__main__':
-    while True:
-        print_main_menu()
-        print("TEST")
-        time.sleep(2)
+    show_main_menu()
+
+
