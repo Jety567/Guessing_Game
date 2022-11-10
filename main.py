@@ -14,6 +14,11 @@ if os.name == 'nt':
 
 selected_index = 0
 menu_size = 3
+
+# EXIT_CODES
+EXIT_CODE_NONE = 0
+EXIT_CODE_USER_INTERRUPTION = 1
+
 def hide_cursor():
     if os.name == 'nt':
         ci = _CursorInfo()
@@ -83,6 +88,9 @@ def guess():
                 continue
         score = score - 1
 
+def exit(exit_code):
+    show_cursor()
+
 def clear():
     if (os.name == 'posix'):
         os.system('clear')
@@ -120,6 +128,7 @@ def show_main_menu():
 
     keyboard.add_hotkey('up', lambda: key_up())
     keyboard.add_hotkey('down', lambda: key_down())
+    keyboard.add_hotkey('enter', lambda: key_enter())
 
     keyboard.wait()
 
@@ -144,6 +153,20 @@ def key_down():
     clear()
     print_main_menu(selected_index)
 
+
+def key_enter():
+    global selected_index
+    clear()
+    main(selected_index)
+
+def main(index):
+    if index == 0:
+        print_highscore()
+    if index == 1:
+        guess()
+    if index == 2:
+        exit(0)
+
 def init_guessing_game():
     clear()
     hide_cursor()
@@ -153,7 +176,7 @@ if __name__ == '__main__':
         init_guessing_game()
         show_main_menu()
     except KeyboardInterrupt:
-        show_cursor()
+        exit(EXIT_CODE_USER_INTERRUPTION)
 
 
 
