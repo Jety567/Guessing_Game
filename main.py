@@ -33,7 +33,6 @@ def hide_cursor():
         sys.stdout.write("\033[?25l")
         sys.stdout.flush()
 
-
 def show_cursor():
     if os.name == 'nt':
         ci = _CursorInfo()
@@ -44,7 +43,6 @@ def show_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25h")
         sys.stdout.flush()
-
 
 def guess():
     print("Enter your username!")
@@ -95,12 +93,10 @@ def guess():
                 continue
         score = score - 1
 
-
 def exit_game(exit_code):
     clear()
     show_cursor()
     os._exit(exit_code)
-
 
 def clear():
     if (os.name == 'posix'):
@@ -109,7 +105,6 @@ def clear():
     else:
         os.system('cls')
 
-
 def write_score(score, name):
     f = open("score.txt", "a")
     f.write(name)
@@ -117,7 +112,6 @@ def write_score(score, name):
     f.write(str(score))
     f.writelines('\n')
     f.close()
-
 
 def print_highscore(index):
     global highscore
@@ -130,7 +124,6 @@ def print_highscore(index):
     print("")
     print("   >>>   " if index == 0 else "        ", "Back        ")
     print("   >>>   " if index == 1 else "        ", "Exit Game   ")
-
 
 def show_highscore():
     f = open("score.txt", "r")
@@ -153,9 +146,6 @@ def show_highscore():
     keyboard.add_hotkey('up', lambda: key_up(print_highscore))
     keyboard.add_hotkey('down', lambda: key_down(print_highscore))
 
-    keyboard.wait(hotkey='enter')
-
-
 def show_main_menu():
     print_main_menu(selected_index)
 
@@ -163,8 +153,7 @@ def show_main_menu():
     keyboard.add_hotkey('down', lambda: key_down(print_main_menu))
     keyboard.add_hotkey('enter', lambda: key_enter())
 
-    keyboard.wait(hotkey='enter')
-
+    keyboard.wait()
 
 def print_main_menu(index):
     print("          Guessing Game!         ")
@@ -175,14 +164,12 @@ def print_main_menu(index):
     print("   >>>   " if index == 1 else "        ", "Play Game      ")
     print("   >>>   " if index == 2 else "        ", "Exit      ")
 
-
 def key_up(func):
     global selected_index
     global menu_size
     selected_index = (selected_index - 1) % menu_size
     clear()
     func(selected_index)
-
 
 def key_down(func):
     global selected_index
@@ -191,13 +178,11 @@ def key_down(func):
     clear()
     func(selected_index)
 
-
 def key_enter():
     global selected_index
     clear()
     keyboard.remove_all_hotkeys()
     main(selected_index)
-
 
 def main(index):
     if index == 0:
@@ -206,7 +191,6 @@ def main(index):
         guess()
     if index == 2:
         exit_game(EXIT_CODE_NONE)
-
 
 def set_name():
     global name
@@ -219,12 +203,11 @@ def set_name():
         set_name()
     # todo: check if name is valid.
 
-
 def init_guessing_game():
     clear()
+    open("score.txt", 'a').close()
     set_name()
     hide_cursor()
-
 
 if __name__ == '__main__':
     try:
