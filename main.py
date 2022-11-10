@@ -90,6 +90,7 @@ def guess():
         score = score - 1
 
 def exit_game(exit_code):
+    clear()
     show_cursor()
     os._exit(exit_code)
 
@@ -180,7 +181,7 @@ def set_name():
     clear()
     if name == "":
         set_name()
-
+    # todo: check if name is valid.
 def init_guessing_game():
     clear()
     set_name()
@@ -191,9 +192,9 @@ if __name__ == '__main__':
     try:
         init_guessing_game()
         show_main_menu()
+        exit_game(0)
     except KeyboardInterrupt:
         exit(EXIT_CODE_USER_INTERRUPTION)
-
 
 
 
