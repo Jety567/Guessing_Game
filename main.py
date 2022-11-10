@@ -14,6 +14,7 @@ if os.name == 'nt':
 
 selected_index = 0
 menu_size = 3
+name = ""
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
@@ -88,8 +89,9 @@ def guess():
                 continue
         score = score - 1
 
-def exit(exit_code):
+def exit_game(exit_code):
     show_cursor()
+    exit(exit_code)
 
 def clear():
     if (os.name == 'posix'):
@@ -133,23 +135,25 @@ def show_main_menu():
     keyboard.wait()
 
 def print_main_menu(index):
-    print("     Guessing Game!      ")
-    print("-------------------------")
-    print("   >   " if index == 0 else "       ", "Highscore      ")
-    print("   >   " if index == 1 else "       ", "Play Game      ")
-    print("   >   " if index == 2 else "       ", "Exit      ")
+    print( "          Guessing Game!         ")
+    print( "---------------------------------")
+    print(f"          Welcome {name}!")
+    print( "")
+    print("   >>>   " if index == 0 else "        ", "Highscore      ")
+    print("   >>>   " if index == 1 else "        ", "Play Game      ")
+    print("   >>>   " if index == 2 else "        ", "Exit      ")
 
 def key_up():
     global selected_index
     global menu_size
-    selected_index = (selected_index + 1) % menu_size
+    selected_index = (selected_index - 1) % menu_size
     clear()
     print_main_menu(selected_index)
 
 def key_down():
     global selected_index
     global menu_size
-    selected_index = (selected_index - 1) % menu_size
+    selected_index = (selected_index + 1) % menu_size
     clear()
     print_main_menu(selected_index)
 
@@ -165,11 +169,23 @@ def main(index):
     if index == 1:
         guess()
     if index == 2:
-        exit(0)
+        exit_game(0)
+
+def set_name():
+    global name
+
+    print("Welcome to guessing Game!")
+    print("-------------------------")
+    name = input("Please Enter your User Name : ")
+    clear()
+    if name == "":
+        set_name()
 
 def init_guessing_game():
     clear()
     hide_cursor()
+    set_name()
+
 
 if __name__ == '__main__':
     try:
