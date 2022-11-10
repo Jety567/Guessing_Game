@@ -2,6 +2,7 @@ import random
 import keyboard
 import os
 import sys
+import re
 
 if os.name == 'nt':
     import msvcrt
@@ -199,9 +200,8 @@ def set_name():
     print("-------------------------")
     name = input("Please Enter your User Name : ")
     clear()
-    if name == "":
+    if name == "" or re.search("[\W]", name) is not None:
         set_name()
-    # todo: check if name is valid.
 
 def init_guessing_game():
     clear()
