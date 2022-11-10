@@ -2,7 +2,6 @@ import random
 from simple_term_menu import TerminalMenu
 import os
 import sys
-import keyboard
 
 if os.name == 'nt':
     import msvcrt
@@ -11,8 +10,6 @@ if os.name == 'nt':
         _fields_ = [("size", ctypes.c_int),
                     ("visible", ctypes.c_byte)]
 
-selected_index = 0
-menu_size = 3
 name = ""
 highscore = {}
 keys_dict = {}
@@ -53,24 +50,26 @@ def show_cursor():
         sys.stdout.write("\033[?25h")
         sys.stdout.flush()
 
+
+def print_game_title(error = ""):
+    clear()
+    print("          Guessing Game!         ")
+    print("---------------------------------")
+    if not error == "":
+        print(error)
+        print("")
+    print("Guess a number between 1 and 10: ")
+
 def guess():
-    print("Enter your username!")
-    name = input()
-    print("Hello", name)
-
-    print("Print Highscore? Yes : No")
-    confirm = input()
-    if confirm == "Yes" or confirm == "y" or confirm == "yes":
-        print_highscore()
-
     x = random.uniform(1, 10)
     x = round(x)
     guess = 12
 
     score = 10
 
+    print_game_title()
+
     while guess != x:
-        print("Guess a number between 1 and 10:")
         guess = input()
         if guess == 'End':
             print("Bye!")
@@ -78,34 +77,42 @@ def guess():
         try:
             guess = int(guess)
         except:
-            print("Please type in a number!")
+            print_game_title("Please type in a number!")
             continue
 
         if (guess < 1 or guess > 10):
-            print("Number out of Range!")
+            print_game_title("Number out of Range!")
             continue
 
         if guess < x:
-            print("Higher")
+            print_game_title("Higher")
         elif guess > x:
-            print("Lower")
+            print_game_title("Lower")
         else:
+            clear()
+            print("          Guessing Game!         ")
+            print("---------------------------------")
             print("Correct!", name, "Your Score is", score, "!")
+            print("")
             write_score(score, name)
-            print("One more round? Yes : No?")
-            confirm = input()
-            if confirm == "Yes" or confirm == "y" or confirm == "yes":
+            terminal_menu = TerminalMenu(["New Game", "Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+            menu_entry_index = terminal_menu.show()
+            if terminal_menu.chosen_menu_index == 0:
                 x = random.uniform(0, 10)
                 x = round(x)
                 guess = 12
                 score = 10
+                print_game_title()
                 continue
+            elif terminal_menu.chosen_menu_index == 1:
+                show_main_menu()
+            elif terminal_menu.chosen_menu_index == 1:
+                exit_game(EXIT_CODE_NONE)
         score = score - 1
 
 def exit_game(exit_code):
     show_cursor()
     clear()
-    keyboard.send('ctrl+c')
     os._exit(exit_code)
 
 def clear():
@@ -123,7 +130,7 @@ def write_score(score, name):
     f.writelines('\n')
     f.close()
 
-def print_highscore(index):
+def print_highscore():
     global highscore
     clear()
     print("\t   Highscore!           ")
@@ -139,20 +146,13 @@ def print_highscore(index):
 def show_highscore():
     f = open("score.txt", "r")
     array = f.read().split("\n")
-    global highscore
-    global selected_index
-    global menu_size
     highscore = {}
     for score in array:
         if score == '':
             continue
         highscore[score.split('//')[0]] = score.split('//')[1]
     highscore = sorted(highscore.items(), key=lambda highscore: highscore[1], reverse=True)
-
-    selected_index = 0
-    menu_size = 2
-
-    print_highscore(selected_index)
+    print_highscore()
 
 def show_main_menu():
     clear()
@@ -163,20 +163,6 @@ def show_main_menu():
     terminal_menu = TerminalMenu(["  Highscore", "  Play Game", "  Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
     key_enter(menu_entry_index)
-
-def key_up(func):
-    global selected_index
-    global menu_size
-    selected_index = (selected_index - 1) % menu_size
-    clear()
-    func(selected_index)
-
-def key_down(func):
-    global selected_index
-    global menu_size
-    selected_index = (selected_index + 1) % menu_size
-    clear()
-    func(selected_index)
 
 def key_enter(index):
     clear()
