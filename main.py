@@ -125,12 +125,13 @@ def print_highscore():
     for x in highscore:
         print("\t",x[0], "\t|   ",x[1])
     print("------------------------------")
+    keyboard.wait(hotkey='enter')
 
 def show_main_menu():
     print_main_menu(selected_index)
 
-    keyboard.add_hotkey('up', lambda: key_up())
-    keyboard.add_hotkey('down', lambda: key_down())
+    keyboard.add_hotkey('up', lambda: key_up(print_main_menu))
+    keyboard.add_hotkey('down', lambda: key_down(print_main_menu))
     keyboard.add_hotkey('enter', lambda: key_enter())
 
     keyboard.wait(hotkey='enter')
@@ -144,19 +145,19 @@ def print_main_menu(index):
     print("   >>>   " if index == 1 else "        ", "Play Game      ")
     print("   >>>   " if index == 2 else "        ", "Exit      ")
 
-def key_up():
+def key_up(func):
     global selected_index
     global menu_size
     selected_index = (selected_index - 1) % menu_size
     clear()
-    print_main_menu(selected_index)
+    func(selected_index)
 
-def key_down():
+def key_down(func):
     global selected_index
     global menu_size
     selected_index = (selected_index + 1) % menu_size
     clear()
-    print_main_menu(selected_index)
+    func(selected_index)
 
 
 def key_enter():
