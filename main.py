@@ -118,11 +118,11 @@ def print_highscore():
         highscore[score.split('//')[0]] = score.split('//')[1]
     highscore = sorted(highscore.items(), key=lambda highscore: highscore[1],reverse=True)
 
-    print("         Highscore!           ")
+    print("\t   Highscore!           ")
     print("------------------------------")
 
     for x in highscore:
-        print("   ",x[0], " | ",x[1])
+        print("\t",x[0], "\t|   ",x[1])
     print("------------------------------")
 
 def show_main_menu():
@@ -183,8 +183,8 @@ def set_name():
 
 def init_guessing_game():
     clear()
-    hide_cursor()
     set_name()
+    hide_cursor()
 
 
 if __name__ == '__main__':
