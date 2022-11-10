@@ -1,24 +1,35 @@
 import random
-import keyboard
+from simple_term_menu import TerminalMenu
 import os
 import sys
+import keyboard
 
 if os.name == 'nt':
     import msvcrt
     import ctypes
-
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int),
                     ("visible", ctypes.c_byte)]
 
-
 selected_index = 0
 menu_size = 3
 name = ""
+highscore = {}
+keys_dict = {}
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
 EXIT_CODE_USER_INTERRUPTION = 1
+
+def key_press(key):
+    global keys_dict
+
+    print(f"Key {key} Value {key in keys_dict}")
+
+    if keys_dict[str(key)]:
+        clear()
+        keys_dict[str(key)]()
+
 
 def hide_cursor():
     if os.name == 'nt':
@@ -30,6 +41,7 @@ def hide_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25l")
         sys.stdout.flush()
+
 def show_cursor():
     if os.name == 'nt':
         ci = _CursorInfo()
@@ -40,10 +52,11 @@ def show_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25h")
         sys.stdout.flush()
+
 def guess():
     print("Enter your username!")
     name = input()
-    print("Hello",name)
+    print("Hello", name)
 
     print("Print Highscore? Yes : No")
     confirm = input()
@@ -77,8 +90,8 @@ def guess():
         elif guess > x:
             print("Lower")
         else:
-            print("Correct!", name ,"Your Score is", score , "!")
-            write_score(score,name)
+            print("Correct!", name, "Your Score is", score, "!")
+            write_score(score, name)
             print("One more round? Yes : No?")
             confirm = input()
             if confirm == "Yes" or confirm == "y" or confirm == "yes":
@@ -91,6 +104,8 @@ def guess():
 
 def exit_game(exit_code):
     show_cursor()
+    clear()
+    keyboard.send('ctrl+c')
     os._exit(exit_code)
 
 def clear():
@@ -100,7 +115,7 @@ def clear():
     else:
         os.system('cls')
 
-def write_score(score,name):
+def write_score(score, name):
     f = open("score.txt", "a")
     f.write(name)
     f.write("//")
@@ -108,68 +123,80 @@ def write_score(score,name):
     f.writelines('\n')
     f.close()
 
-def print_highscore():
+def print_highscore(index):
+    global highscore
+    clear()
+    print("\t   Highscore!           ")
+    print("------------------------------")
+    for x in highscore:
+        print("   ", str(x[0]).ljust(10), "| ", str(x[1]).rjust(2))
+    print("------------------------------")
+    print("")
+    terminal_menu = TerminalMenu(["Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    menu_entry_index = terminal_menu.show()
+    key_enter_high_score(terminal_menu.chosen_menu_index)
+
+def show_highscore():
     f = open("score.txt", "r")
     array = f.read().split("\n")
+    global highscore
+    global selected_index
+    global menu_size
     highscore = {}
     for score in array:
         if score == '':
             continue
         highscore[score.split('//')[0]] = score.split('//')[1]
-    highscore = sorted(highscore.items(), key=lambda highscore: highscore[1],reverse=True)
+    highscore = sorted(highscore.items(), key=lambda highscore: highscore[1], reverse=True)
 
-    print("         Highscore!           ")
-    print("------------------------------")
+    selected_index = 0
+    menu_size = 2
 
-    for x in highscore:
-        print("   ",x[0], " | ",x[1])
-    print("------------------------------")
+    print_highscore(selected_index)
 
 def show_main_menu():
-    print_main_menu(selected_index)
-
-    keyboard.add_hotkey('up', lambda: key_up())
-    keyboard.add_hotkey('down', lambda: key_down())
-    keyboard.add_hotkey('enter', lambda: key_enter())
-
-    keyboard.wait(hotkey='enter')
-
-def print_main_menu(index):
-    print( "          Guessing Game!         ")
-    print( "---------------------------------")
+    clear()
+    print("          Guessing Game!         ")
+    print("---------------------------------")
     print(f"          Welcome {name}!")
-    print( "")
-    print("   >>>   " if index == 0 else "        ", "Highscore      ")
-    print("   >>>   " if index == 1 else "        ", "Play Game      ")
-    print("   >>>   " if index == 2 else "        ", "Exit      ")
+    print("")
+    terminal_menu = TerminalMenu(["  Highscore", "  Play Game", "  Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    menu_entry_index = terminal_menu.show()
+    key_enter(menu_entry_index)
 
-def key_up():
+def key_up(func):
     global selected_index
     global menu_size
     selected_index = (selected_index - 1) % menu_size
     clear()
-    print_main_menu(selected_index)
+    func(selected_index)
 
-def key_down():
+def key_down(func):
     global selected_index
     global menu_size
     selected_index = (selected_index + 1) % menu_size
     clear()
-    print_main_menu(selected_index)
+    func(selected_index)
 
-
-def key_enter():
-    global selected_index
+def key_enter(index):
     clear()
-    main(selected_index)
+    main(index)
 
 def main(index):
     if index == 0:
-        print_highscore()
+        show_highscore()
     if index == 1:
         guess()
     if index == 2:
         exit_game(EXIT_CODE_NONE)
+
+def key_enter_high_score(index):
+    if index == 0:
+        clear()
+        show_main_menu()
+    if index == 1:
+        exit_game(EXIT_CODE_NONE)
+
 
 def set_name():
     global name
@@ -180,21 +207,18 @@ def set_name():
     clear()
     if name == "":
         set_name()
+    # todo: check if name is valid.
 
 def init_guessing_game():
     clear()
-    hide_cursor()
+    open("score.txt", 'a').close()
     set_name()
-
+    hide_cursor()
 
 if __name__ == '__main__':
     try:
         init_guessing_game()
         show_main_menu()
+        exit_game(EXIT_CODE_NONE)
     except KeyboardInterrupt:
-        exit(EXIT_CODE_USER_INTERRUPTION)
-
-
-
-
-
+        exit_game(EXIT_CODE_USER_INTERRUPTION)
