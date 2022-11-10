@@ -91,7 +91,7 @@ def guess():
 
 def exit_game(exit_code):
     show_cursor()
-    exit(exit_code)
+    os._exit(exit_code)
 
 def clear():
     if (os.name == 'posix'):
@@ -132,7 +132,7 @@ def show_main_menu():
     keyboard.add_hotkey('down', lambda: key_down())
     keyboard.add_hotkey('enter', lambda: key_enter())
 
-    keyboard.wait()
+    keyboard.wait(hotkey='enter')
 
 def print_main_menu(index):
     print( "          Guessing Game!         ")
@@ -169,7 +169,7 @@ def main(index):
     if index == 1:
         guess()
     if index == 2:
-        exit_game(0)
+        exit_game(EXIT_CODE_NONE)
 
 def set_name():
     global name
