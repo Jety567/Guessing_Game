@@ -7,18 +7,20 @@ if os.name == 'nt':
     import msvcrt
     import ctypes
 
+
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int),
                     ("visible", ctypes.c_byte)]
 
-
 selected_index = 0
 menu_size = 3
 name = ""
+highscore = {}
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
 EXIT_CODE_USER_INTERRUPTION = 1
+
 
 def hide_cursor():
     if os.name == 'nt':
@@ -30,6 +32,8 @@ def hide_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25l")
         sys.stdout.flush()
+
+
 def show_cursor():
     if os.name == 'nt':
         ci = _CursorInfo()
@@ -40,10 +44,12 @@ def show_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25h")
         sys.stdout.flush()
+
+
 def guess():
     print("Enter your username!")
     name = input()
-    print("Hello",name)
+    print("Hello", name)
 
     print("Print Highscore? Yes : No")
     confirm = input()
@@ -77,8 +83,8 @@ def guess():
         elif guess > x:
             print("Lower")
         else:
-            print("Correct!", name ,"Your Score is", score , "!")
-            write_score(score,name)
+            print("Correct!", name, "Your Score is", score, "!")
+            write_score(score, name)
             print("One more round? Yes : No?")
             confirm = input()
             if confirm == "Yes" or confirm == "y" or confirm == "yes":
@@ -89,10 +95,12 @@ def guess():
                 continue
         score = score - 1
 
+
 def exit_game(exit_code):
     clear()
     show_cursor()
     os._exit(exit_code)
+
 
 def clear():
     if (os.name == 'posix'):
@@ -101,7 +109,8 @@ def clear():
     else:
         os.system('cls')
 
-def write_score(score,name):
+
+def write_score(score, name):
     f = open("score.txt", "a")
     f.write(name)
     f.write("//")
@@ -109,23 +118,43 @@ def write_score(score,name):
     f.writelines('\n')
     f.close()
 
-def print_highscore():
+
+def print_highscore(index):
+    global highscore
+    clear()
+    print("\t   Highscore!           ")
+    print("------------------------------")
+    for x in highscore:
+        print("   ", str(x[0]).ljust(10), "| ", str(x[1]).rjust(2))
+    print("------------------------------")
+    print("")
+    print("   >>>   " if index == 0 else "        ", "Back        ")
+    print("   >>>   " if index == 1 else "        ", "Exit Game   ")
+
+
+def show_highscore():
     f = open("score.txt", "r")
     array = f.read().split("\n")
+    global highscore
+    global selected_index
+    global menu_size
     highscore = {}
     for score in array:
         if score == '':
             continue
         highscore[score.split('//')[0]] = score.split('//')[1]
-    highscore = sorted(highscore.items(), key=lambda highscore: highscore[1],reverse=True)
+    highscore = sorted(highscore.items(), key=lambda highscore: highscore[1], reverse=True)
 
-    print("\t   Highscore!           ")
-    print("------------------------------")
+    selected_index = 0
+    menu_size = 2
 
-    for x in highscore:
-        print("\t",x[0], "\t|   ",x[1])
-    print("------------------------------")
+    print_highscore(selected_index)
+
+    keyboard.add_hotkey('up', lambda: key_up(print_highscore))
+    keyboard.add_hotkey('down', lambda: key_down(print_highscore))
+
     keyboard.wait(hotkey='enter')
+
 
 def show_main_menu():
     print_main_menu(selected_index)
@@ -136,14 +165,16 @@ def show_main_menu():
 
     keyboard.wait(hotkey='enter')
 
+
 def print_main_menu(index):
-    print( "          Guessing Game!         ")
-    print( "---------------------------------")
+    print("          Guessing Game!         ")
+    print("---------------------------------")
     print(f"          Welcome {name}!")
-    print( "")
+    print("")
     print("   >>>   " if index == 0 else "        ", "Highscore      ")
     print("   >>>   " if index == 1 else "        ", "Play Game      ")
     print("   >>>   " if index == 2 else "        ", "Exit      ")
+
 
 def key_up(func):
     global selected_index
@@ -151,6 +182,7 @@ def key_up(func):
     selected_index = (selected_index - 1) % menu_size
     clear()
     func(selected_index)
+
 
 def key_down(func):
     global selected_index
@@ -163,15 +195,18 @@ def key_down(func):
 def key_enter():
     global selected_index
     clear()
+    keyboard.remove_all_hotkeys()
     main(selected_index)
+
 
 def main(index):
     if index == 0:
-        print_highscore()
+        show_highscore()
     if index == 1:
         guess()
     if index == 2:
         exit_game(EXIT_CODE_NONE)
+
 
 def set_name():
     global name
@@ -183,6 +218,8 @@ def set_name():
     if name == "":
         set_name()
     # todo: check if name is valid.
+
+
 def init_guessing_game():
     clear()
     set_name()
@@ -195,8 +232,4 @@ if __name__ == '__main__':
         show_main_menu()
         exit_game(0)
     except KeyboardInterrupt:
-        exit(EXIT_CODE_USER_INTERRUPTION)
-
-
-
-
+        exit_game(EXIT_CODE_USER_INTERRUPTION)
