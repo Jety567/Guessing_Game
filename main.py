@@ -2,6 +2,7 @@ import random
 from simple_term_menu import TerminalMenu
 import os
 import sys
+import re
 
 if os.name == 'nt':
     import msvcrt
@@ -17,16 +18,6 @@ keys_dict = {}
 # EXIT_CODES
 EXIT_CODE_NONE = 0
 EXIT_CODE_USER_INTERRUPTION = 1
-
-def key_press(key):
-    global keys_dict
-
-    print(f"Key {key} Value {key in keys_dict}")
-
-    if keys_dict[str(key)]:
-        clear()
-        keys_dict[str(key)]()
-
 
 def hide_cursor():
     if os.name == 'nt':
@@ -113,6 +104,7 @@ def guess():
         score = score - 1
 
 def exit_game(exit_code):
+    clear()
     show_cursor()
     clear()
     os._exit(exit_code)
@@ -125,7 +117,6 @@ def clear():
         os.system('cls')
 
 def write_score(score, name):
-    # todo via server
     f = open("score.txt", "a")
     f.write(name)
     f.write("//")
@@ -142,6 +133,7 @@ def print_highscore():
         print("   ", str(x[0]).ljust(10), "| ", str(x[1]).rjust(2))
     print("------------------------------")
     print("")
+    
     terminal_menu = TerminalMenu(["Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
     key_enter_high_score(terminal_menu.chosen_menu_index)
@@ -168,6 +160,7 @@ def show_main_menu():
     menu_entry_index = terminal_menu.show()
     key_enter(menu_entry_index)
 
+
 def key_enter(index):
     clear()
     main(index)
@@ -190,14 +183,14 @@ def key_enter_high_score(index):
 
 def set_name():
     global name
-
     print("Welcome to guessing Game!")
     print("-------------------------")
+    if err == 1:
+        print("(Names can only include letters, numbers and \'_\')")
     name = input("Please Enter your User Name : ")
     clear()
-    if name == "":
-        set_name()
-    # todo: check if name is valid.
+    if name == "" or re.search("[\W]", name):
+        set_name(1)
 
 def init_guessing_game():
     clear()
