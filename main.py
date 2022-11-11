@@ -61,6 +61,8 @@ def print_game_title(error = ""):
     print("Guess a number between 1 and 10: ")
 
 def guess():
+    # todo Schwierigkeiten Low,Medium,High
+
     x = random.uniform(1, 10)
     x = round(x)
     guess = 12
@@ -123,6 +125,7 @@ def clear():
         os.system('cls')
 
 def write_score(score, name):
+    # todo via server
     f = open("score.txt", "a")
     f.write(name)
     f.write("//")
@@ -146,6 +149,7 @@ def print_highscore():
 def show_highscore():
     f = open("score.txt", "r")
     array = f.read().split("\n")
+    global highscore
     highscore = {}
     for score in array:
         if score == '':
@@ -160,7 +164,7 @@ def show_main_menu():
     print("---------------------------------")
     print(f"          Welcome {name}!")
     print("")
-    terminal_menu = TerminalMenu(["  Highscore", "  Play Game", "  Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    terminal_menu = TerminalMenu(["Play Game","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
     key_enter(menu_entry_index)
 
@@ -170,9 +174,9 @@ def key_enter(index):
 
 def main(index):
     if index == 0:
-        show_highscore()
-    if index == 1:
         guess()
+    if index == 1:
+        show_highscore()
     if index == 2:
         exit_game(EXIT_CODE_NONE)
 
