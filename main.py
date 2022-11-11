@@ -181,7 +181,7 @@ def key_enter_high_score(index):
         exit_game(EXIT_CODE_NONE)
 
 
-def set_name(err):
+def set_name(err = 0):
     global name
     print("Welcome to guessing Game!")
     print("-------------------------")
