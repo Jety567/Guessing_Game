@@ -193,15 +193,16 @@ def main(index):
     if index == 2:
         exit_game(EXIT_CODE_NONE)
 
-def set_name():
+def set_name(err = 0):
     global name
-
     print("Welcome to guessing Game!")
     print("-------------------------")
+    if err == 1:
+        print("(Names can only include letters, numbers and \'_\')")
     name = input("Please Enter your User Name : ")
     clear()
-    if name == "" or re.search("[\W]", name) is not None:
-        set_name()
+    if name == "" or re.search("[\W]", name):
+        set_name(1)
 
 def init_guessing_game():
     clear()
