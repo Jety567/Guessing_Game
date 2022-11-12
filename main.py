@@ -51,6 +51,24 @@ def print_game_title(error = ""):
         print("")
     print("Guess a number between 1 and 10: ")
 
+def manhatten_distance(list_a, list_b):
+    return sum( map( lambda x, y: abs(x-y), list_a, list_b))
+
+
+def treasure_hunt():
+    treasure = (int(random.uniform(1, 10)), int(random.uniform(1, 10)))
+    score = 10
+    while True:
+        location = (int (input("Input the koordinates you want to search for treasure\n x: ")), int (input(" y: ")))
+        distance = manhatten_distance(treasure, location)
+        print(f"You are {distance} steps away from the treasure {treasure}")
+        if distance == 0:
+            break
+        score = (score - 1) if score > 0 else 0
+    print(f"gg! your score is: {score} points")
+    input()
+    show_main_menu()
+
 def guess():
     # todo Schwierigkeiten Low,Medium,High
 
@@ -156,7 +174,7 @@ def show_main_menu():
     print("---------------------------------")
     print(f"          Welcome {name}!")
     print("")
-    terminal_menu = TerminalMenu(["Play Game","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    terminal_menu = TerminalMenu(["Play Guess Game", "Play Treasure Hunt","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
     key_enter(menu_entry_index)
 
@@ -169,8 +187,10 @@ def main(index):
     if index == 0:
         guess()
     if index == 1:
-        show_highscore()
+        treasure_hunt()
     if index == 2:
+        show_highscore()
+    if index == 3:
         exit_game(EXIT_CODE_NONE)
 
 def key_enter_high_score(index):
