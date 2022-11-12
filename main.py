@@ -66,7 +66,8 @@ def treasure_hunt():
             break
         score = (score - 1) if score > 0 else 0
     print(f"gg! your score is: {score} points")
-
+    input()
+    show_main_menu()
 
 def guess():
     # todo Schwierigkeiten Low,Medium,High
@@ -173,7 +174,7 @@ def show_main_menu():
     print("---------------------------------")
     print(f"          Welcome {name}!")
     print("")
-    terminal_menu = TerminalMenu(["Play Game","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    terminal_menu = TerminalMenu(["Play Guess Game", "Play Treasure Hunt","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
     key_enter(menu_entry_index)
 
@@ -184,10 +185,12 @@ def key_enter(index):
 
 def main(index):
     if index == 0:
-        treasure_hunt()#guess()
+        guess()
     if index == 1:
-        show_highscore()
+        treasure_hunt()
     if index == 2:
+        show_highscore()
+    if index == 3:
         exit_game(EXIT_CODE_NONE)
 
 def key_enter_high_score(index):
