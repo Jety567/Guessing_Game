@@ -51,6 +51,10 @@ def print_game_title(error = ""):
         print("")
     print("Guess a number between 1 and 10: ")
 
+def manhatten_distance(list_a, list_b):
+    return sum( map( lambda x, y: abs(x-y), list_a, list_b))
+
+
 def guess():
     # todo Schwierigkeiten Low,Medium,High
 
