@@ -54,15 +54,17 @@ def print_game_title(error = ""):
 def manhatten_distance(list_a, list_b):
     return sum( map( lambda x, y: abs(x-y), list_a, list_b))
 
+
 def treasure_hunt():
-    treasure = (random.uniform(1,10), random.uniform(1,10))
-    d = -1
+    treasure = (int(random.uniform(1, 10)), int(random.uniform(1, 10)))
     score = 10
-    while(d != 0):
-        input = (input("Input the koordinates you want to search for treasure\n x: "), input(" y: "))
-        d = manhatten_distance(treasure, input)
-        print(f"You are {d} steps away from the treasure")
-        score = (score-1) if score > 0 else 0
+    while True:
+        location = (int (input("Input the koordinates you want to search for treasure\n x: ")), int (input(" y: ")))
+        distance = manhatten_distance(treasure, location)
+        print(f"You are {distance} steps away from the treasure {treasure}")
+        if distance == 0:
+            break
+        score = (score - 1) if score > 0 else 0
     print(f"gg! your score is: {score} points")
 
 
@@ -182,7 +184,7 @@ def key_enter(index):
 
 def main(index):
     if index == 0:
-        guess()
+        treasure_hunt()#guess()
     if index == 1:
         show_highscore()
     if index == 2:
