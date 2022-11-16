@@ -14,6 +14,7 @@ if os.name == 'nt':
 name = ""
 highscore = {}
 keys_dict = {}
+level = "easy"
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
@@ -70,11 +71,28 @@ def treasure_hunt():
     show_main_menu()
 
 def guess():
+    range_max = 10
+
+    terminal_menu = TerminalMenu(["Leicht", "Mittel", "Schwer"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    menu_entry_index = terminal_menu.show()
+
+    if menu_entry_index == 0:
+        range_max = 10
+        level = "easy"
+    elif menu_entry_index == 1:
+        range_max = 59
+        level = "medium"
+    elif menu_entry_index == 2:
+        range_max = 100
+        level = "hard"
+
+
+
     # todo Schwierigkeiten Low,Medium,High
 
-    x = random.uniform(1, 10)
+    x = random.uniform(1, range_max)
     x = round(x)
-    guess = 12
+    guess = 102
 
     score = 10
 
@@ -91,7 +109,7 @@ def guess():
             print_game_title("Please type in a number!")
             continue
 
-        if (guess < 1 or guess > 10):
+        if (guess < 1 or guess > range_max):
             print_game_title("Number out of Range!")
             continue
 
@@ -111,7 +129,7 @@ def guess():
             if terminal_menu.chosen_menu_index == 0:
                 x = random.uniform(0, 10)
                 x = round(x)
-                guess = 12
+                guess = 102
                 score = 10
                 print_game_title()
                 continue
@@ -145,11 +163,11 @@ def write_score(score, name):
 def print_highscore():
     global highscore
     clear()
-    print("\t   Highscore!           ")
-    print("------------------------------")
+    print(f"{'Highscore!':^30s}")
+    print(f"{'-':-^30s}")
     for x in highscore:
         print("   ", str(x[0]).ljust(10), "| ", str(x[1]).rjust(2))
-    print("------------------------------")
+    print(f"{'-':-^30s}")
     print("")
     
     terminal_menu = TerminalMenu(["Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
