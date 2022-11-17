@@ -1,4 +1,5 @@
 import random
+import requests
 from simple_term_menu import TerminalMenu
 import os
 import sys
@@ -153,20 +154,23 @@ def clear():
         os.system('cls')
 
 def write_score(score, name):
-    f = open("score.txt", "a")
-    f.write(name)
-    f.write("//")
-    f.write(str(score))
-    f.writelines('\n')
-    f.close()
+    url = 'http://localhost:3000/highscore'
+    myobj = {
+        "name": name,
+        "points": score
+    }
+    x = requests.post(url, json=myobj)
 
 def print_highscore():
-    global highscore
     clear()
+    url = 'http://localhost:3000/highscore'
+    x = requests.get(url)
+    x = x.json()
+
     print(f"{'Highscore!':^30s}")
     print(f"{'-':-^30s}")
-    for x in highscore:
-        print("   ", str(x[0]).ljust(10), "| ", str(x[1]).rjust(2))
+    for score in x:
+        print("   ", str(score['name']).ljust(10), "| ", str(score['points']).rjust(2))
     print(f"{'-':-^30s}")
     print("")
     
@@ -175,15 +179,6 @@ def print_highscore():
     key_enter_high_score(terminal_menu.chosen_menu_index)
 
 def show_highscore():
-    f = open("score.txt", "r")
-    array = f.read().split("\n")
-    global highscore
-    highscore = {}
-    for score in array:
-        if score == '':
-            continue
-        highscore[score.split('//')[0]] = score.split('//')[1]
-    highscore = sorted(highscore.items(), key=lambda highscore: highscore[1], reverse=True)
     print_highscore()
 
 def show_main_menu():
