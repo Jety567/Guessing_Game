@@ -124,7 +124,7 @@ def guess():
             print("---------------------------------")
             print("Correct!", name, "Your Score is", score, "!")
             print("")
-            write_score(score, name)
+            write_score(score, name,"guessing_game",'easy')
             terminal_menu = TerminalMenu(["New Game", "Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
             menu_entry_index = terminal_menu.show()
             if terminal_menu.chosen_menu_index == 0:
@@ -153,17 +153,17 @@ def clear():
     else:
         os.system('cls')
 
-def write_score(score, name):
-    url = 'http://localhost:3000/highscore'
+def write_score(score, name,game,level):
+    url = "http://localhost:3000/highscore/" + game + "/" + level
     myobj = {
         "name": name,
         "points": score
     }
     x = requests.post(url, json=myobj)
 
-def print_highscore():
+def print_highscore(game,level):
     clear()
-    url = 'http://localhost:3000/highscore'
+    url = "http://localhost:3000/highscore/" + game + "/" + level
     x = requests.get(url)
     x = x.json()
 
@@ -176,10 +176,43 @@ def print_highscore():
     
     terminal_menu = TerminalMenu(["Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
-    key_enter_high_score(terminal_menu.chosen_menu_index)
+    if menu_entry_index == 0:
+        highscore_level(game)
+    elif menu_entry_index == 1:
+        exit_game(EXIT_CODE_NONE)
+
+def highscore_level(game):
+    clear()
+    print(f"{'Highscore!':^30s}")
+    print(f"{'-':-^30s}")
+    terminal_menu = TerminalMenu(["Leicht", "Mittel", "Schwer","Back","Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == 0:
+        print_highscore(game,"easy")
+    elif menu_entry_index == 1:
+        print_highscore(game,"medium")
+    elif menu_entry_index == 2:
+        print_highscore(game,"hard")
+    elif menu_entry_index == 3:
+        show_highscore()
+    elif menu_entry_index == 4:
+        exit_game(EXIT_CODE_NONE)
 
 def show_highscore():
-    print_highscore()
+    clear()
+    print(f"{'Highscore!':^30s}")
+    print(f"{'-':-^30s}")
+    terminal_menu = TerminalMenu(["Guessing Game", "Treasure Hunt","Back","Exit"],accept_keys=("enter", "alt-d", "ctrl-i"))
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == 0:
+        highscore_level("guessing_game")
+    elif menu_entry_index == 1:
+        highscore_level("treasure_hunt")
+    elif menu_entry_index == 2:
+        show_main_menu()
+    elif menu_entry_index == 3:
+        exit_game(EXIT_CODE_NONE)
+
 
 def show_main_menu():
     clear()
