@@ -72,6 +72,8 @@ def treasure_hunt():
     show_main_menu()
 
 def guess():
+    global level
+
     range_max = 10
     clear()
     print("          Guessing Game!         ")
@@ -109,24 +111,24 @@ def guess():
         try:
             guess = int(guess)
         except:
-            print_game_title("Please type in a number!")
+            print_game_title(range_max,"Please type in a number!")
             continue
 
         if (guess < 1 or guess > range_max):
-            print_game_title("Number out of Range!")
+            print_game_title(range_max,"Number out of Range!")
             continue
 
         if guess < x:
-            print_game_title("Higher")
+            print_game_title(range_max,"Higher")
         elif guess > x:
-            print_game_title("Lower")
+            print_game_title(range_max,"Lower")
         else:
             clear()
             print("          Guessing Game!         ")
             print("---------------------------------")
             print("Correct!", name, "Your Score is", score, "!")
             print("")
-            write_score(score, name,"guessing_game",'easy')
+            write_score(score, name,"guessing_game",level)
             terminal_menu = TerminalMenu(["New Game", "Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
             menu_entry_index = terminal_menu.show()
             if terminal_menu.chosen_menu_index == 0:

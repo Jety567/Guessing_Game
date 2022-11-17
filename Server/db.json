@@ -47,6 +47,22 @@
       "level": "easy",
       "creatdAt": 1668686525104,
       "id": 6
+    },
+    {
+      "name": "Pa",
+      "points": 5,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668690266559,
+      "id": 7
+    },
+    {
+      "name": "Test",
+      "points": 5,
+      "game": "guessing_game",
+      "level": "medium",
+      "creatdAt": 1668690345845,
+      "id": 8
     }
   ]
 }
