@@ -91,10 +91,6 @@ def guess():
         range_max = 100
         level = "hard"
 
-
-
-    # todo Schwierigkeiten Low,Medium,High
-
     x = random.uniform(1, range_max)
     x = round(x)
     guess = 102
@@ -142,6 +138,8 @@ def guess():
                 show_main_menu()
             elif terminal_menu.chosen_menu_index == 1:
                 exit_game(EXIT_CODE_NONE)
+        #todo New Score counting
+
         score = score - 1
 
 def exit_game(exit_code):
