@@ -44,14 +44,14 @@ def show_cursor():
         sys.stdout.flush()
 
 
-def print_game_title(error = ""):
+def print_game_title(max_range = 10,error = ""):
     clear()
     print("          Guessing Game!         ")
     print("---------------------------------")
     if not error == "":
         print(error)
         print("")
-    print("Guess a number between 1 and 10: ")
+    print(f"Guess a number between 1 and {max_range}: ")
 
 def manhatten_distance(list_a, list_b):
     return sum( map( lambda x, y: abs(x-y), list_a, list_b))
@@ -73,7 +73,9 @@ def treasure_hunt():
 
 def guess():
     range_max = 10
-
+    clear()
+    print("          Guessing Game!         ")
+    print("---------------------------------")
     terminal_menu = TerminalMenu(["Leicht", "Mittel", "Schwer"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
 
@@ -97,7 +99,7 @@ def guess():
 
     score = 10
 
-    print_game_title()
+    print_game_title(max_range=range_max)
 
     while guess != x:
         guess = input()
