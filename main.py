@@ -1,9 +1,12 @@
 import random
+import socketio
 import requests
 from simple_term_menu import TerminalMenu
 import os
 import sys
 import re
+
+from Menu import Menu
 
 if os.name == 'nt':
     import msvcrt
@@ -16,6 +19,8 @@ name = ""
 highscore = {}
 keys_dict = {}
 level = "easy"
+
+socket = socketio.Client()
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
@@ -222,7 +227,7 @@ def show_main_menu():
     print("---------------------------------")
     print(f"          Welcome {name}!")
     print("")
-    terminal_menu = TerminalMenu(["Play Guess Game", "Play Treasure Hunt","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
+    terminal_menu = TerminalMenu(["Play Guess Game", "Play Treasure Hunt","Multiplayer","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
     menu_entry_index = terminal_menu.show()
     key_enter(menu_entry_index)
 
@@ -231,14 +236,40 @@ def key_enter(index):
     clear()
     main(index)
 
+
+def show_multiplayer():
+    clear()
+    print(f"{'Welcome to Multiplayer!':^30s}")
+    print(f"{'-':-^30s}")
+    terminal_menu = TerminalMenu(["New Game", "Lobby"],accept_keys=("enter", "alt-d", "ctrl-i"))
+    menu_entry_index = terminal_menu.show()
+    select_multiplayer(menu_entry_index)
+
+def select_multiplayer(select,error = ""):
+    clear()
+    if select == 0:
+        print(f"{'Welcome to Multiplayer!':^30s}")
+        print(f"{'-':-^30s}")
+        print("")
+        if error != "":
+            print(error)
+        room_name = input("Enter the name of your Room: ")
+        socket.emit('Client:new_room', {"room_name": room_name, "name": name})
+
+    elif select == 1:
+        socket.emit('Client:get_rooms')
+
+
 def main(index):
     if index == 0:
         guess()
     if index == 1:
         treasure_hunt()
     if index == 2:
-        show_highscore()
+        show_multiplayer()
     if index == 3:
+        show_highscore()
+    if index == 4:
         exit_game(EXIT_CODE_NONE)
 
 def key_enter_high_score(index):
@@ -266,10 +297,32 @@ def init_guessing_game():
     set_name()
     hide_cursor()
 
+@socket.on('Server:room_created')
+def on_message(data):
+    clear()
+    room_name = data['name']
+    print(f"{f'New Room created! {room_name}':^30s}")
+    print(f"{'-':-^30s}")
+    print("Waiting for Player Joining!")
+
+@socket.on('Server:room_exits')
+def on_message(data):
+    clear()
+    select_multiplayer(0, f"Room allready Exits! {data}")
+
+@socket.on('Server:rooms')
+def rooms(data):
+    exit_menu = Menu(['Test1','Tese2','Back','Exit'], "Please Choice your Room?")
+    if exit_menu() == 'Yes':
+        sys.exit()
+
+
 if __name__ == '__main__':
     try:
+        socket.connect('http://localhost:3000')
         init_guessing_game()
         show_main_menu()
+        socket.wait()
         exit_game(EXIT_CODE_NONE)
     except KeyboardInterrupt:
         exit_game(EXIT_CODE_USER_INTERRUPTION)
