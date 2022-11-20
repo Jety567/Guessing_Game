@@ -15,15 +15,8 @@ io.on('connection', (socket) => {
      console.log("Join Room")
   });
   socket.on('Client:get_rooms',() => {
-      let rooms = io.of('/').adapter.rooms;
+      emit_rooms();
 
-      let array = Array.from(rooms.keys());
-
-      array = array.filter((obj) => {
-          return obj.includes('Client_') && rooms.get(obj).size === 1;
-      })
-
-      io.emit('Server:rooms',array);
   })
 
   socket.on('Client:new_room',(args) => {
@@ -35,6 +28,12 @@ io.on('connection', (socket) => {
       socket.emit('Server:room_created',{
          name: args.room_name,
       });
+      emit_rooms();
+  });
+
+  socket.on('Client:leave_room',(args) => {
+      console.log(args);
+      socket.leave(args);
   });
 
 });
@@ -87,6 +86,22 @@ app.get('/highscore/:game/:level',async (req,res) => {
         res.sendStatus(500);
     }
 });
+
+const emit_rooms = () => {
+    let rooms = io.of('/').adapter.rooms;
+
+    let array = Array.from(rooms.keys());
+
+
+    array = array.filter((obj) => {
+          return obj.includes('Client_') && rooms.get(obj).size === 1;
+      })
+
+    array = array.map((room) => {
+        return room.replace('Client_','');
+    })
+    io.emit('Server:rooms',array);
+}
 
 server.listen(3000,() => {
 

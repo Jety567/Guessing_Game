@@ -1,13 +1,17 @@
-from __future__ import print_function # Not needed in Python 3
+from __future__ import print_function  # Not needed in Python 3
 import sys, tty, termios
 import os
 
 if os.name == 'nt':
     import msvcrt
     import ctypes
+
+
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int),
                     ("visible", ctypes.c_byte)]
+
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -23,6 +27,8 @@ class bcolors:
 class Menu:
     opts = []
     message = ""
+    selected = 0
+    key_pressed = None
 
     def __init__(self, options, message=None):
         self.opts = options
@@ -61,9 +67,9 @@ class Menu:
             sys.stdout.flush()
 
     def _get_input(self):
-        while(1):
+        while (1):
             k = self._getch()
-            if k!="":
+            if k != "":
                 break
         keycodes = {'\x1b[A': "prev", '\x1b[B': "next", '\x1b[C': "next", '\x1b[D': "prev", "\n": "select"}
         if k in keycodes.keys():
@@ -71,37 +77,34 @@ class Menu:
         return None
 
     def __call__(self):
-        selected = 0
+        self.selected = 0
         self._hide_cursor()
         while True:
-            # Infinite loop broken by return
-            self._clear()
-            print("\r", end="")
-            print(f"{f'{self.message}':^30s}")
-            print(f"{'-':-^30s}")
-            for ind, opt in enumerate(self.opts):
-                if ind == selected:
-                    print(bcolors.FAIL + "> " + bcolors.ENDC,end="")
-                    print("\033[0;30;107m{}\033[0m".format(opt), end=" ")
-                else:
-                    print("  ", end="")
-                    print(opt, end=" ")
-                print("")
-
-            key_pressed = None
-            while key_pressed == None:
-                # Looping until valid key pressed
-                key_pressed = self._get_input()
-                if (key_pressed == "next") and selected < (len(self.opts) - 1):
-                    selected += 1
-                elif (key_pressed == "prev") and selected > 0:
-                    selected -= 1
-                elif key_pressed == "select":
+            self._render_menu()
+            self.key_pressed = None
+            while self.key_pressed is None:
+                self.key_pressed = self._get_input()
+                if (self.key_pressed == "next") and self.selected < (len(self.opts) - 1):
+                    self.selected += 1
+                elif (self.key_pressed == "prev") and self.selected > 0:
+                    self.selected -= 1
+                elif self.key_pressed == "select":
                     print("")
-                    return self.opts[selected]
+                    return self.selected
 
+    def _render_menu(self):
+        self._clear()
+        print("\r", end="")
+        print(self.message)
+        for ind, opt in enumerate(self.opts):
+            if ind == self.selected:
+                print(bcolors.FAIL + " >>  " + bcolors.ENDC, end="")
+                print("\033[0;30;107m{}\033[0m".format(opt), end=" ")
+            else:
+                print("     ", end="")
+                print(opt, end=" ")
+            print("")
 
-if __name__ == '__main__':
-    exit_menu = Menu(['Yes', 'No'], "Exit?")
-    if exit_menu() == 'Yes':
-        sys.exit()
+    def set_data(self, data):
+        self.opts = data
+        self._render_menu()

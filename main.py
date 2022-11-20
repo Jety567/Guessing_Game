@@ -1,16 +1,16 @@
 import random
 import socketio
 import requests
-from simple_term_menu import TerminalMenu
 import os
 import sys
 import re
-
 from Menu import Menu
 
 if os.name == 'nt':
     import msvcrt
     import ctypes
+
+
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int),
                     ("visible", ctypes.c_byte)]
@@ -20,11 +20,16 @@ highscore = {}
 keys_dict = {}
 level = "easy"
 
+exit_menu = None
+
+in_lobby = False
+
 socket = socketio.Client()
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
 EXIT_CODE_USER_INTERRUPTION = 1
+
 
 def hide_cursor():
     if os.name == 'nt':
@@ -36,6 +41,7 @@ def hide_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25l")
         sys.stdout.flush()
+
 
 def show_cursor():
     if os.name == 'nt':
@@ -49,7 +55,7 @@ def show_cursor():
         sys.stdout.flush()
 
 
-def print_game_title(max_range = 10,error = ""):
+def print_game_title(max_range=10, error=""):
     clear()
     print("          Guessing Game!         ")
     print("---------------------------------")
@@ -58,15 +64,16 @@ def print_game_title(max_range = 10,error = ""):
         print("")
     print(f"Guess a number between 1 and {max_range}: ")
 
+
 def manhatten_distance(list_a, list_b):
-    return sum( map( lambda x, y: abs(x-y), list_a, list_b))
+    return sum(map(lambda x, y: abs(x - y), list_a, list_b))
 
 
 def treasure_hunt():
     treasure = (int(random.uniform(1, 10)), int(random.uniform(1, 10)))
     score = 10
     while True:
-        location = (int (input("Input the koordinates you want to search for treasure\n x: ")), int (input(" y: ")))
+        location = (int(input("Input the koordinates you want to search for treasure\n x: ")), int(input(" y: ")))
         distance = manhatten_distance(treasure, location)
         print(f"You are {distance} steps away from the treasure {treasure}")
         if distance == 0:
@@ -76,15 +83,17 @@ def treasure_hunt():
     input()
     show_main_menu()
 
+
 def guess():
     global level
 
     range_max = 10
     clear()
-    print("          Guessing Game!         ")
-    print("---------------------------------")
-    terminal_menu = TerminalMenu(["Leicht", "Mittel", "Schwer"], accept_keys=("enter", "alt-d", "ctrl-i"))
-    menu_entry_index = terminal_menu.show()
+    head = "          Guessing Game!         \n"
+    head += "--------------------------------- \n"
+
+    terminal_menu = Menu(["Leicht", "Mittel", "Schwer"],head)
+    menu_entry_index = terminal_menu()
 
     if menu_entry_index == 0:
         range_max = 10
@@ -112,46 +121,47 @@ def guess():
         try:
             guess = int(guess)
         except:
-            print_game_title(range_max,"Please type in a number!")
+            print_game_title(range_max, "Please type in a number!")
             continue
 
         if (guess < 1 or guess > range_max):
-            print_game_title(range_max,"Number out of Range!")
+            print_game_title(range_max, "Number out of Range!")
             continue
 
         if guess < x:
-            print_game_title(range_max,"Higher")
+            print_game_title(range_max, "Higher")
         elif guess > x:
-            print_game_title(range_max,"Lower")
+            print_game_title(range_max, "Lower")
         else:
             clear()
-            print("          Guessing Game!         ")
-            print("---------------------------------")
-            print("Correct!", name, "Your Score is", score, "!")
-            print("")
-            write_score(score, name,"guessing_game",level)
-            terminal_menu = TerminalMenu(["New Game", "Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
-            menu_entry_index = terminal_menu.show()
-            if terminal_menu.chosen_menu_index == 0:
+            head = "          Guessing Game!         \n"
+            head += "---------------------------------\n"
+            head += f"Correct! {name} Your Score is {score} ! \n\n"
+            write_score(score, name, "guessing_game", level)
+            terminal_menu = Menu(["New Game", "Back", "Exit"], head)
+            menu_entry_index = terminal_menu()
+            if menu_entry_index == 0:
                 x = random.uniform(0, 10)
                 x = round(x)
                 guess = 102
                 score = 10
                 print_game_title()
                 continue
-            elif terminal_menu.chosen_menu_index == 1:
+            elif menu_entry_index == 1:
                 show_main_menu()
-            elif terminal_menu.chosen_menu_index == 1:
+            elif menu_entry_index == 1:
                 exit_game(EXIT_CODE_NONE)
-        #todo New Score counting
+        # todo New Score counting
 
         score = score - 1
+
 
 def exit_game(exit_code):
     clear()
     show_cursor()
     clear()
     os._exit(exit_code)
+
 
 def clear():
     if (os.name == 'posix'):
@@ -160,7 +170,8 @@ def clear():
     else:
         os.system('cls')
 
-def write_score(score, name,game,level):
+
+def write_score(score, name, game, level):
     url = "http://localhost:3000/highscore/" + game + "/" + level
     myobj = {
         "name": name,
@@ -168,49 +179,56 @@ def write_score(score, name,game,level):
     }
     x = requests.post(url, json=myobj)
 
-def print_highscore(game,level):
+
+def print_highscore(game, level):
     clear()
     url = "http://localhost:3000/highscore/" + game + "/" + level
     x = requests.get(url)
     x = x.json()
 
-    print(f"{'Highscore!':^30s}")
-    print(f"{'-':-^30s}")
+    head = f"{'Highscore!':^30s} \n"
+    head += f"{'-':-^30s}\n"
     for score in x:
-        print("   ", str(score['name']).ljust(10), "| ", str(score['points']).rjust(2))
-    print(f"{'-':-^30s}")
-    print("")
-    
-    terminal_menu = TerminalMenu(["Back", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
-    menu_entry_index = terminal_menu.show()
+        head += "   "
+        head += str(score['name']).ljust(10)
+        head += "| "
+        head += str(score['points']).rjust(2)
+        head += "\n"
+
+    head += f"{'-':-^30s} \n\n"
+
+    terminal_menu = Menu(["Back", "Exit"], head)
+    menu_entry_index = terminal_menu()
     if menu_entry_index == 0:
         highscore_level(game)
     elif menu_entry_index == 1:
         exit_game(EXIT_CODE_NONE)
 
+
 def highscore_level(game):
     clear()
-    print(f"{'Highscore!':^30s}")
-    print(f"{'-':-^30s}")
-    terminal_menu = TerminalMenu(["Leicht", "Mittel", "Schwer","Back","Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
-    menu_entry_index = terminal_menu.show()
+    head = f"{'Highscore!':^30s} \n"
+    head += f"{'-':-^30s} \n"
+    terminal_menu = Menu(["Leicht", "Mittel", "Schwer", "Back", "Exit"], head)
+    menu_entry_index = terminal_menu()
     if menu_entry_index == 0:
-        print_highscore(game,"easy")
+        print_highscore(game, "easy")
     elif menu_entry_index == 1:
-        print_highscore(game,"medium")
+        print_highscore(game, "medium")
     elif menu_entry_index == 2:
-        print_highscore(game,"hard")
+        print_highscore(game, "hard")
     elif menu_entry_index == 3:
         show_highscore()
     elif menu_entry_index == 4:
         exit_game(EXIT_CODE_NONE)
 
+
 def show_highscore():
     clear()
-    print(f"{'Highscore!':^30s}")
-    print(f"{'-':-^30s}")
-    terminal_menu = TerminalMenu(["Guessing Game", "Treasure Hunt","Back","Exit"],accept_keys=("enter", "alt-d", "ctrl-i"))
-    menu_entry_index = terminal_menu.show()
+    head = f"{'Highscore!':^30s} \n"
+    head += f"{'-':-^30s} \n"
+    terminal_menu = Menu(["Guessing Game", "Treasure Hunt", "Back", "Exit"], head)
+    menu_entry_index = terminal_menu()
     if menu_entry_index == 0:
         highscore_level("guessing_game")
     elif menu_entry_index == 1:
@@ -223,12 +241,11 @@ def show_highscore():
 
 def show_main_menu():
     clear()
-    print("          Guessing Game!         ")
-    print("---------------------------------")
-    print(f"          Welcome {name}!")
-    print("")
-    terminal_menu = TerminalMenu(["Play Guess Game", "Play Treasure Hunt","Multiplayer","Highscore", "Exit"], accept_keys=("enter", "alt-d", "ctrl-i"))
-    menu_entry_index = terminal_menu.show()
+    head = "          Guessing Game!         \n"
+    head += "---------------------------------\n"
+    head += f"          Welcome {name}!\n"
+    terminal_menu = Menu(["Play Guess Game", "Play Treasure Hunt", "Multiplayer", "Highscore", "Exit"], head)
+    menu_entry_index = terminal_menu()
     key_enter(menu_entry_index)
 
 
@@ -239,13 +256,14 @@ def key_enter(index):
 
 def show_multiplayer():
     clear()
-    print(f"{'Welcome to Multiplayer!':^30s}")
-    print(f"{'-':-^30s}")
-    terminal_menu = TerminalMenu(["New Game", "Lobby"],accept_keys=("enter", "alt-d", "ctrl-i"))
-    menu_entry_index = terminal_menu.show()
+    head = f"{'Welcome to Multiplayer!':^30s}"
+    head += f"{'-':-^30s}"
+    terminal_menu = Menu(["New Game", "Lobby"], head)
+    menu_entry_index = terminal_menu()
     select_multiplayer(menu_entry_index)
 
-def select_multiplayer(select,error = ""):
+
+def select_multiplayer(select, error=""):
     clear()
     if select == 0:
         print(f"{'Welcome to Multiplayer!':^30s}")
@@ -257,7 +275,9 @@ def select_multiplayer(select,error = ""):
         socket.emit('Client:new_room', {"room_name": room_name, "name": name})
 
     elif select == 1:
+        global in_lobby
         socket.emit('Client:get_rooms')
+        in_lobby = True
 
 
 def main(index):
@@ -272,6 +292,7 @@ def main(index):
     if index == 4:
         exit_game(EXIT_CODE_NONE)
 
+
 def key_enter_high_score(index):
     if index == 0:
         clear()
@@ -280,7 +301,7 @@ def key_enter_high_score(index):
         exit_game(EXIT_CODE_NONE)
 
 
-def set_name(err = 0):
+def set_name(err=0):
     global name
     print("Welcome to guessing Game!")
     print("-------------------------")
@@ -291,30 +312,57 @@ def set_name(err = 0):
     if name == "" or re.search("[\W]", name):
         set_name(1)
 
+
 def init_guessing_game():
     clear()
     open("score.txt", 'a').close()
     set_name()
     hide_cursor()
 
+
 @socket.on('Server:room_created')
 def on_message(data):
     clear()
     room_name = data['name']
-    print(f"{f'New Room created! {room_name}':^30s}")
-    print(f"{'-':-^30s}")
-    print("Waiting for Player Joining!")
+    head = f"{f'New Room created! {room_name}':^30s} \n"
+    head += f"{'-':-^30s} \n"
+    head += "Waiting for Player Joining! \n"
+    menu = Menu(['Back','Exit'],head)
+    select = menu()
+    if select == 0:
+        socket.emit('Client:leave_room', "Client_" + room_name)
+        show_main_menu()
+    elif select == 1:
+        exit_game(EXIT_CODE_NONE)
+
 
 @socket.on('Server:room_exits')
 def on_message(data):
     clear()
     select_multiplayer(0, f"Room allready Exits! {data}")
 
+
 @socket.on('Server:rooms')
 def rooms(data):
-    exit_menu = Menu(['Test1','Tese2','Back','Exit'], "Please Choice your Room?")
-    if exit_menu() == 'Yes':
-        sys.exit()
+    global in_lobby
+    global exit_menu
+    clear()
+    head = "   Multiplayer Lobby!           \n"
+    head += "--------------------------------\n"
+    head += "   Please choice your Room?     \n"
+    if in_lobby:
+        data.append('Back')
+        data.append('Exit')
+        if exit_menu is not None:
+            exit_menu.set_data(data)
+        else:
+            exit_menu = Menu(data, head)
+            select = exit_menu()
+            if select == len(data) - 1:
+                exit_game(EXIT_CODE_NONE)
+            elif select == len(data) - 2:
+                clear()
+                show_main_menu()
 
 
 if __name__ == '__main__':
