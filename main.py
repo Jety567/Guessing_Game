@@ -21,6 +21,7 @@ name = ""
 highscore = {}
 keys_dict = {}
 level = "easy"
+offline = False
 
 exit_menu = None
 
@@ -96,7 +97,7 @@ def guess():
     head = "          Guessing Game!         \n"
     head += "--------------------------------- \n"
 
-    terminal_menu = Menu(["Leicht", "Mittel", "Schwer"],head)
+    terminal_menu = Menu(["Leicht", "Mittel", "Schwer"], head)
     menu_entry_index = terminal_menu()
 
     if menu_entry_index == 0:
@@ -248,20 +249,29 @@ def show_main_menu():
     head = "          Guessing Game!         \n"
     head += "---------------------------------\n"
     head += f"          Welcome {name}!\n"
-    terminal_menu = Menu(["Play Guess Game", "Play Treasure Hunt", "Tic Tac Toe", "Multiplayer", "Highscore", "Exit"], head)
+    if offline:
+        head += "          You are Offline!\n"
+        terminal_menu = Menu(
+            ["Play Guess Game", "Play Treasure Hunt", "Play Tic Tac Toe", "Highscore", "Exit"],
+            head)
+    else:
+        terminal_menu = Menu(["Play Guess Game", "Play Treasure Hunt", "Play Tic Tac Toe", "Multiplayer", "Highscore", "Exit"],
+                         head)
     menu_entry_index = terminal_menu()
     key_enter(menu_entry_index)
 
 
 def key_enter(index):
     clear()
+    if offline and index >= 3:
+        index += 1
     main(index)
 
 
 def show_multiplayer():
     clear()
-    head = f"{'Welcome to Multiplayer!':^30s}"
-    head += f"{'-':-^30s}"
+    head = f"{'Welcome to Multiplayer!':^30s}\n"
+    head += f"{'-':-^30s}\n"
     terminal_menu = Menu(["New Game", "Lobby"], head)
     menu_entry_index = terminal_menu()
     select_multiplayer(menu_entry_index)
@@ -282,6 +292,9 @@ def select_multiplayer(select, error=""):
         global in_lobby
         socket.emit('Client:get_rooms')
         in_lobby = True
+
+def join_room():
+    socket.emit('')
 
 
 def main(index):
@@ -305,6 +318,7 @@ def key_enter_high_score(index):
         show_main_menu()
     if index == 1:
         exit_game(EXIT_CODE_NONE)
+
 
 def tic_tac_toe():
     clear()
@@ -355,7 +369,7 @@ def on_message(data):
     head = f"{f'New Room created! {room_name}':^30s} \n"
     head += f"{'-':-^30s} \n"
     head += "Waiting for Player Joining! \n"
-    menu = Menu(['Back','Exit'],head)
+    menu = Menu(['Back', 'Exit'], head)
     select = menu()
     if select == 0:
         socket.emit('Client:leave_room', "Client_" + room_name)
@@ -395,7 +409,11 @@ def rooms(data):
 
 if __name__ == '__main__':
     try:
-        socket.connect('http://localhost:3000')
+        try:
+            socket.connect('http://localhost:3000')
+        except:
+            offline = True
+
         init_guessing_game()
         show_main_menu()
         socket.wait()

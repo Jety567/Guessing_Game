@@ -13,6 +13,7 @@ if os.name == 'nt':
 
 
 class TicTacToe:
+
     board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
     width = 2
     currentPlayer = 0

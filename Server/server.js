@@ -36,6 +36,10 @@ io.on('connection', (socket) => {
       socket.leave(args);
   });
 
+  socket.on('Client:join_room',(args) => {
+
+  })
+
 });
 
 
