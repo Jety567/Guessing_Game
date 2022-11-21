@@ -6,6 +6,8 @@ import sys
 import re
 from Menu import Menu
 
+import tictactoe
+
 if os.name == 'nt':
     import msvcrt
     import ctypes
@@ -23,6 +25,8 @@ level = "easy"
 exit_menu = None
 
 in_lobby = False
+
+tic = tictactoe.TicTacToe()
 
 socket = socketio.Client()
 
@@ -244,7 +248,7 @@ def show_main_menu():
     head = "          Guessing Game!         \n"
     head += "---------------------------------\n"
     head += f"          Welcome {name}!\n"
-    terminal_menu = Menu(["Play Guess Game", "Play Treasure Hunt", "Multiplayer", "Highscore", "Exit"], head)
+    terminal_menu = Menu(["Play Guess Game", "Play Treasure Hunt", "Tic Tac Toe", "Multiplayer", "Highscore", "Exit"], head)
     menu_entry_index = terminal_menu()
     key_enter(menu_entry_index)
 
@@ -286,10 +290,12 @@ def main(index):
     if index == 1:
         treasure_hunt()
     if index == 2:
-        show_multiplayer()
+        tic_tac_toe()
     if index == 3:
-        show_highscore()
+        show_multiplayer()
     if index == 4:
+        show_highscore()
+    if index == 5:
         exit_game(EXIT_CODE_NONE)
 
 
@@ -298,6 +304,28 @@ def key_enter_high_score(index):
         clear()
         show_main_menu()
     if index == 1:
+        exit_game(EXIT_CODE_NONE)
+
+def tic_tac_toe():
+    clear()
+    global tic
+    player = tic.start()
+    tic.victory()
+    clear()
+    head = "   Tic Tac Toe \n"
+    if player == 0:
+        head += "No one won!"
+    else:
+        head += f"   Player {player} wins!"
+
+    head += "\n--------------------\n"
+    terminal_menu = Menu(["New Game", "Back", "Exit"], head)
+    menu_entry_index = terminal_menu()
+    if menu_entry_index == 0:
+        tic_tac_toe()
+    elif menu_entry_index == 1:
+        show_main_menu()
+    elif menu_entry_index == 2:
         exit_game(EXIT_CODE_NONE)
 
 

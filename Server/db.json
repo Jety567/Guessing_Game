@@ -63,6 +63,22 @@
       "level": "medium",
       "creatdAt": 1668690345845,
       "id": 8
+    },
+    {
+      "name": "Patrick",
+      "points": 4,
+      "game": "guessing_game",
+      "level": "hard",
+      "creatdAt": 1668709915495,
+      "id": 9
+    },
+    {
+      "name": "Patrick",
+      "points": 6,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668983111445,
+      "id": 10
     }
   ]
 }

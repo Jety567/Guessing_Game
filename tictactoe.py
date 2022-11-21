@@ -63,6 +63,7 @@ class TicTacToe:
 
     def print_board(self):
         self._clear()
+        print("    Tic Tac Toe")
         print("")
         print("   -------------")
         print("   |", self._print_field(0), "|", self._print_field(1), "|", self._print_field(2), "|")
@@ -85,13 +86,15 @@ class TicTacToe:
 
         if self.board[0] == player:
             if (self.board[1] == player and self.board[2] == player) or (self.board[3] == player and self.board[6] == player) or (self.board[4] == player and self.board[8] == player):
-                self._victory(player)
+                return True
         if self.board[4] == player:
             if (self.board[1] == player and self.board[7] == player) or (self.board[3] == player and self.board[5] == player) or (self.board[2] == player and self.board[6] == player):
-                self._victory(player)
+                return True
         if self.board[8] == player:
             if (self.board[6] == player and self.board[7] == player) or (self.board[2] == player and self.board[5] == player):
-                self._victory(player)
+                return True
+
+        return False
 
 
 
@@ -103,8 +106,8 @@ class TicTacToe:
         else:
             return False
 
-    def _victory(self,player):
-        self.message = f"Player {player} wins!"
+    def victory(self):
+        print("Victory")
         self.board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
         self.currentPlayer = 0
 
@@ -124,8 +127,14 @@ class TicTacToe:
                     self.selected += 3
                 elif key_pressed == "select":
                     if self._turn():
-                        self._check_victory()
-                        self.currentPlayer = (self.currentPlayer + 1) % 2
+                        if self._check_victory():
+                            self.victory()
+                            return self.players[self.currentPlayer]
+                        if any(x == ' ' for x in self.board):
+                            self.currentPlayer = (self.currentPlayer + 1) % 2
+                        else:
+                            self.victory()
+                            return 0
 
 
 if __name__ == '__main__':
