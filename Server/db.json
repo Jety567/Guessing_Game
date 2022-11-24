@@ -1,0 +1,84 @@
+{
+  "highscore": [
+    {
+      "name": "Patrick",
+      "points": 1,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668681087464,
+      "id": 1
+    },
+    {
+      "name": "Patrick",
+      "points": 4,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668681135769,
+      "id": 2
+    },
+    {
+      "name": "Test",
+      "points": 8,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668681347502,
+      "id": 3
+    },
+    {
+      "name": "Te",
+      "points": 6,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668681391321,
+      "id": 4
+    },
+    {
+      "name": "Test",
+      "points": 6,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668681446855,
+      "id": 5
+    },
+    {
+      "name": "Oa",
+      "points": 8,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668686525104,
+      "id": 6
+    },
+    {
+      "name": "Pa",
+      "points": 5,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668690266559,
+      "id": 7
+    },
+    {
+      "name": "Test",
+      "points": 5,
+      "game": "guessing_game",
+      "level": "medium",
+      "creatdAt": 1668690345845,
+      "id": 8
+    },
+    {
+      "name": "Patrick",
+      "points": 4,
+      "game": "guessing_game",
+      "level": "hard",
+      "creatdAt": 1668709915495,
+      "id": 9
+    },
+    {
+      "name": "Patrick",
+      "points": 6,
+      "game": "guessing_game",
+      "level": "easy",
+      "creatdAt": 1668983111445,
+      "id": 10
+    }
+  ]
+}
