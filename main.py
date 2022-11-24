@@ -5,6 +5,7 @@ import os
 import re
 from Menu import Menu
 import terminal
+import guessing_game
 
 import tictactoe
 
@@ -19,23 +20,13 @@ exit_menu = None
 in_lobby = False
 
 tic = tictactoe.TicTacToe()
+guessing = guessing_game.Guessing()
 
 socket = socketio.Client()
 
 # EXIT_CODES
 EXIT_CODE_NONE = 0
 EXIT_CODE_USER_INTERRUPTION = 1
-
-
-def print_game_title(max_range=10, error=""):
-    terminal.clear()
-    print("          Guessing Game!         ")
-    print("---------------------------------")
-    if not error == "":
-        print(error)
-        print("")
-    print(f"Guess a number between 1 and {max_range}: ")
-
 
 def manhatten_distance(list_a, list_b):
     return sum(map(lambda x, y: abs(x - y), list_a, list_b))
@@ -54,78 +45,6 @@ def treasure_hunt():
     print(f"gg! your score is: {score} points")
     input()
     show_main_menu()
-
-
-def guess():
-    global level
-
-    range_max = 10
-    terminal.clear()
-    head = "          Guessing Game!         \n"
-    head += "--------------------------------- \n"
-
-    terminal_menu = Menu(["Leicht", "Mittel", "Schwer"], head)
-    menu_entry_index = terminal_menu()
-
-    if menu_entry_index == 0:
-        range_max = 10
-        level = "easy"
-    elif menu_entry_index == 1:
-        range_max = 59
-        level = "medium"
-    elif menu_entry_index == 2:
-        range_max = 100
-        level = "hard"
-
-    x = random.uniform(1, range_max)
-    x = round(x)
-    guess = 102
-
-    score = 10
-
-    print_game_title(max_range=range_max)
-
-    while guess != x:
-        guess = input()
-        if guess == 'End':
-            print("Bye!")
-            break
-        try:
-            guess = int(guess)
-        except:
-            print_game_title(range_max, "Please type in a number!")
-            continue
-
-        if (guess < 1 or guess > range_max):
-            print_game_title(range_max, "Number out of Range!")
-            continue
-
-        if guess < x:
-            print_game_title(range_max, "Higher")
-        elif guess > x:
-            print_game_title(range_max, "Lower")
-        else:
-            terminal.clear()
-            head = "          Guessing Game!         \n"
-            head += "---------------------------------\n"
-            head += f"Correct! {name} Your Score is {score} ! \n\n"
-            write_score(score, name, "guessing_game", level)
-            terminal_menu = Menu(["New Game", "Back", "Exit"], head)
-            menu_entry_index = terminal_menu()
-            if menu_entry_index == 0:
-                x = random.uniform(0, 10)
-                x = round(x)
-                guess = 102
-                score = 10
-                print_game_title()
-                continue
-            elif menu_entry_index == 1:
-                show_main_menu()
-            elif menu_entry_index == 1:
-                exit_game(EXIT_CODE_NONE)
-        # todo New Score counting
-
-        score = score - 1
 
 
 def exit_game(exit_code):
@@ -261,7 +180,11 @@ def join_room():
 
 def main(index):
     if index == 0:
-        guess()
+        menu_index = guessing.start()
+        if menu_index == 0:
+            show_main_menu()
+        elif menu_index == 1:
+            exit_game(EXIT_CODE_NONE)
     if index == 1:
         treasure_hunt()
     if index == 2:
@@ -377,6 +300,7 @@ if __name__ == '__main__':
             offline = True
 
         init_guessing_game()
+        guessing.set_name(name)
         show_main_menu()
         socket.wait()
         exit_game(EXIT_CODE_NONE)
