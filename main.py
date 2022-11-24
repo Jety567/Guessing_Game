@@ -2,20 +2,11 @@ import random
 import socketio
 import requests
 import os
-import sys
 import re
 from Menu import Menu
+import terminal
 
 import tictactoe
-
-if os.name == 'nt':
-    import msvcrt
-    import ctypes
-
-
-    class _CursorInfo(ctypes.Structure):
-        _fields_ = [("size", ctypes.c_int),
-                    ("visible", ctypes.c_byte)]
 
 name = ""
 highscore = {}
@@ -36,32 +27,8 @@ EXIT_CODE_NONE = 0
 EXIT_CODE_USER_INTERRUPTION = 1
 
 
-def hide_cursor():
-    if os.name == 'nt':
-        ci = _CursorInfo()
-        handle = ctypes.windll.kernel32.GetStdHandle(-11)
-        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
-        ci.visible = False
-        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
-    elif os.name == 'posix':
-        sys.stdout.write("\033[?25l")
-        sys.stdout.flush()
-
-
-def show_cursor():
-    if os.name == 'nt':
-        ci = _CursorInfo()
-        handle = ctypes.windll.kernel32.GetStdHandle(-11)
-        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
-        ci.visible = True
-        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
-    elif os.name == 'posix':
-        sys.stdout.write("\033[?25h")
-        sys.stdout.flush()
-
-
 def print_game_title(max_range=10, error=""):
-    clear()
+    terminal.clear()
     print("          Guessing Game!         ")
     print("---------------------------------")
     if not error == "":
@@ -93,7 +60,7 @@ def guess():
     global level
 
     range_max = 10
-    clear()
+    terminal.clear()
     head = "          Guessing Game!         \n"
     head += "--------------------------------- \n"
 
@@ -138,7 +105,7 @@ def guess():
         elif guess > x:
             print_game_title(range_max, "Lower")
         else:
-            clear()
+            terminal.clear()
             head = "          Guessing Game!         \n"
             head += "---------------------------------\n"
             head += f"Correct! {name} Your Score is {score} ! \n\n"
@@ -162,21 +129,16 @@ def guess():
 
 
 def exit_game(exit_code):
-    clear()
-    show_cursor()
-    clear()
+    terminal.clear()
+    terminal.show_cursor()
+    terminal.clear()
     os._exit(exit_code)
 
 
-def clear():
-    if (os.name == 'posix'):
-        os.system('clear')
-    # else screen will be cleared for windows
-    else:
-        os.system('cls')
-
-
 def write_score(score, name, game, level):
+    if offline:
+        return
+
     url = "http://localhost:3000/highscore/" + game + "/" + level
     myobj = {
         "name": name,
@@ -186,7 +148,7 @@ def write_score(score, name, game, level):
 
 
 def print_highscore(game, level):
-    clear()
+    terminal.clear()
     url = "http://localhost:3000/highscore/" + game + "/" + level
     x = requests.get(url)
     x = x.json()
@@ -211,7 +173,7 @@ def print_highscore(game, level):
 
 
 def highscore_level(game):
-    clear()
+    terminal.clear()
     head = f"{'Highscore!':^30s} \n"
     head += f"{'-':-^30s} \n"
     terminal_menu = Menu(["Leicht", "Mittel", "Schwer", "Back", "Exit"], head)
@@ -229,7 +191,7 @@ def highscore_level(game):
 
 
 def show_highscore():
-    clear()
+    terminal.clear()
     head = f"{'Highscore!':^30s} \n"
     head += f"{'-':-^30s} \n"
     terminal_menu = Menu(["Guessing Game", "Treasure Hunt", "Back", "Exit"], head)
@@ -245,14 +207,14 @@ def show_highscore():
 
 
 def show_main_menu():
-    clear()
+    terminal.clear()
     head = "          Guessing Game!         \n"
     head += "---------------------------------\n"
     head += f"          Welcome {name}!\n"
     if offline:
         head += "          You are Offline!\n"
         terminal_menu = Menu(
-            ["Play Guess Game", "Play Treasure Hunt", "Play Tic Tac Toe", "Highscore", "Exit"],
+            ["Play Guess Game", "Play Treasure Hunt", "Play Tic Tac Toe", "Exit"],
             head)
     else:
         terminal_menu = Menu(["Play Guess Game", "Play Treasure Hunt", "Play Tic Tac Toe", "Multiplayer", "Highscore", "Exit"],
@@ -262,14 +224,14 @@ def show_main_menu():
 
 
 def key_enter(index):
-    clear()
+    terminal.clear()
     if offline and index >= 3:
-        index += 1
+        index += 2
     main(index)
 
 
 def show_multiplayer():
-    clear()
+    terminal.clear()
     head = f"{'Welcome to Multiplayer!':^30s}\n"
     head += f"{'-':-^30s}\n"
     terminal_menu = Menu(["New Game", "Lobby"], head)
@@ -278,7 +240,7 @@ def show_multiplayer():
 
 
 def select_multiplayer(select, error=""):
-    clear()
+    terminal.clear()
     if select == 0:
         print(f"{'Welcome to Multiplayer!':^30s}")
         print(f"{'-':-^30s}")
@@ -314,18 +276,18 @@ def main(index):
 
 def key_enter_high_score(index):
     if index == 0:
-        clear()
+        terminal.clear()
         show_main_menu()
     if index == 1:
         exit_game(EXIT_CODE_NONE)
 
 
 def tic_tac_toe():
-    clear()
+    terminal.clear()
     global tic
     player = tic.start()
     tic.victory()
-    clear()
+    terminal.clear()
     head = "   Tic Tac Toe \n"
     if player == 0:
         head += "No one won!"
@@ -350,21 +312,21 @@ def set_name(err=0):
     if err == 1:
         print("(Names can only include letters, numbers and \'_\')")
     name = input("Please Enter your User Name : ")
-    clear()
+    terminal.clear()
     if name == "" or re.search("[\W]", name):
         set_name(1)
 
 
 def init_guessing_game():
-    clear()
+    terminal.clear()
     open("score.txt", 'a').close()
     set_name()
-    hide_cursor()
+    terminal.hide_cursor()
 
 
 @socket.on('Server:room_created')
 def on_message(data):
-    clear()
+    terminal.clear()
     room_name = data['name']
     head = f"{f'New Room created! {room_name}':^30s} \n"
     head += f"{'-':-^30s} \n"
@@ -380,7 +342,7 @@ def on_message(data):
 
 @socket.on('Server:room_exits')
 def on_message(data):
-    clear()
+    terminal.clear()
     select_multiplayer(0, f"Room allready Exits! {data}")
 
 
@@ -388,7 +350,7 @@ def on_message(data):
 def rooms(data):
     global in_lobby
     global exit_menu
-    clear()
+    terminal.clear()
     head = "   Multiplayer Lobby!           \n"
     head += "--------------------------------\n"
     head += "   Please choice your Room?     \n"
@@ -403,7 +365,7 @@ def rooms(data):
             if select == len(data) - 1:
                 exit_game(EXIT_CODE_NONE)
             elif select == len(data) - 2:
-                clear()
+                terminal.clear()
                 show_main_menu()
 
 

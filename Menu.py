@@ -1,6 +1,7 @@
 from __future__ import print_function  # Not needed in Python 3
 import sys, tty, termios
 import os
+import terminal
 
 if os.name == 'nt':
     import msvcrt
@@ -49,23 +50,6 @@ class Menu:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
-    def _clear(self):
-        if (os.name == 'posix'):
-            os.system('clear')
-        else:
-            os.system('cls')
-
-    def _hide_cursor(self):
-        if os.name == 'nt':
-            ci = _CursorInfo()
-            handle = ctypes.windll.kernel32.GetStdHandle(-11)
-            ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
-            ci.visible = False
-            ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
-        elif os.name == 'posix':
-            sys.stdout.write("\033[?25l")
-            sys.stdout.flush()
-
     def _get_input(self):
         while (1):
             k = self._getch()
@@ -78,7 +62,7 @@ class Menu:
 
     def __call__(self):
         self.selected = 0
-        self._hide_cursor()
+        terminal.hide_cursor()
         while True:
             self._render_menu()
             self.key_pressed = None
@@ -93,7 +77,7 @@ class Menu:
                     return self.selected
 
     def _render_menu(self):
-        self._clear()
+        terminal.clear()
         print("\r", end="")
         print(self.message)
         for ind, opt in enumerate(self.opts):
